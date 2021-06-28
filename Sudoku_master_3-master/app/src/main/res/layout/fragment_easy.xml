@@ -1,0 +1,268 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:background="#F3EDED"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".Fragment.EasyFragment">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="50dp"
+        android:layout_marginLeft="10dp"
+        android:text="Games"
+        android:textSize="20dp"
+        android:textColor="@color/Black"
+        />
+
+    <TableLayout
+        android:layout_width="match_parent"
+        android:layout_height="180dp"
+        android:layout_margin="10dp"
+        android:background="@color/White"
+        >
+     <TableRow
+         android:layout_margin="15dp">
+         <ImageView
+
+             android:layout_width="match_parent"
+             android:layout_height="match_parent"
+
+             android:src="@drawable/ic_person" />
+         <TextView
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+             android:layout_marginLeft="40dp"
+             android:text="Game Started"
+             android:textSize="20dp"
+             android:textColor="@color/Black"
+             />
+
+         <TextView
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+             android:layout_marginLeft="110dp"
+             android:text="0"
+             android:textColor="@color/Black"
+             android:textSize="20dp" />
+
+     </TableRow>
+        <TableRow
+            android:layout_margin="15dp">
+            <ImageView
+
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:src="@drawable/ic_home" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="40dp"
+                android:text="Game Won"
+                android:textSize="20dp"
+                android:textColor="@color/Black"
+                />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="110dp"
+                android:text="0"
+                android:textColor="@color/Black"
+                android:textSize="20dp" />
+
+        </TableRow>
+        <TableRow
+            android:layout_margin="15dp">
+            <ImageView
+                android:id="@+id/image"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:src="@drawable/back_icon" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="40dp"
+                android:text="Win Rate"
+                android:textSize="20dp"
+                android:textColor="@color/Black"
+                />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="90dp"
+                android:text="0,0%"
+                android:textColor="@color/Black"
+                android:textSize="20dp" />
+
+        </TableRow>
+
+    </TableLayout>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp"
+        android:text="Time"
+        android:textSize="20dp"
+        android:textColor="@color/Black"
+        />
+
+    <TableLayout
+        android:layout_width="match_parent"
+        android:layout_height="130dp"
+        android:layout_margin="10dp"
+        android:background="@color/White"
+        >
+        <TableRow
+            android:layout_margin="15dp">
+            <ImageView
+
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+
+                android:src="@drawable/ic_person" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="40dp"
+                android:text="Best Time"
+                android:textSize="20dp"
+                android:textColor="@color/Black"
+                />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="110dp"
+                android:text="0"
+                android:textColor="@color/Black"
+                android:textSize="20dp" />
+
+        </TableRow>
+        <TableRow
+            android:layout_margin="15dp">
+            <ImageView
+
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:src="@drawable/ic_home" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="40dp"
+                android:text="Average Time"
+                android:textSize="20dp"
+                android:textColor="@color/Black"
+                />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="110dp"
+                android:text="0"
+                android:textColor="@color/Black"
+                android:textSize="20dp" />
+
+        </TableRow>
+
+
+    </TableLayout>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp"
+        android:text="Streaks"
+        android:textSize="20dp"
+        android:textColor="@color/Black"
+        />
+    <TableLayout
+        android:layout_width="match_parent"
+        android:layout_height="180dp"
+        android:layout_margin="10dp"
+        android:background="@color/White"
+        >
+        <TableRow
+            android:layout_margin="15dp">
+            <ImageView
+
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+
+                android:src="@drawable/ic_person" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="40dp"
+                android:text="Current Win Streak"
+                android:textSize="20dp"
+                android:textColor="@color/Black"
+                />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="40dp"
+                android:text="0"
+                android:textColor="@color/Black"
+                android:textSize="20dp" />
+
+        </TableRow>
+        <TableRow
+            android:layout_margin="15dp">
+            <ImageView
+
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:src="@drawable/ic_home" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="40dp"
+                android:text="Best Win Streak"
+                android:textSize="20dp"
+                android:textColor="@color/Black"
+                />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="40dp"
+                android:text="0"
+                android:textColor="@color/Black"
+                android:textSize="20dp" />
+
+        </TableRow>
+        <TableRow
+            android:layout_margin="15dp">
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:src="@drawable/back_icon" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="40dp"
+                android:text="Win With No Mistakes"
+                android:textSize="20dp"
+                android:textColor="@color/Black"
+                />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="40dp"
+                android:text="0,0%"
+                android:textColor="@color/Black"
+                android:textSize="20dp" />
+
+        </TableRow>
+
+    </TableLayout>
+
+
+
+</LinearLayout>

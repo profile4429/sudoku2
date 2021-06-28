@@ -94,6 +94,7 @@ class BoardView(context: Context, attributeSet: AttributeSet) : View(context, at
         wrongCellTextPaint.textSize = cellSizePixels / 1.5F
     }
 
+
     //Override function onDraw de thuc hien fill cell, draw line, write value
     override fun onDraw(canvas: Canvas) {
         updateMeasurement(width)

@@ -1,5 +1,6 @@
 package com.example.sudoku.game
 
+import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import kotlin.random.Random
 
@@ -37,19 +38,32 @@ class SudokuGame {
     }
 
     //Function xu li input cho cells
+
     fun handleInput(number: Int) {
         //Return if 'there's no selected cell' or 'selected cell is a starting cell'
         if (selectRow == -1 || selectColumn == -1) return
         val cell = board.getCell(selectRow, selectColumn)
         if (cell.isStartingCell) return
 
-        cell.value = 0                                          //de tranh truong hop xet o dang chon co gia tri = voi gia tri moi
+        cell.value = 0
+     //de tranh truong hop xet o dang chon co gia tri = voi gia tri moi
         cell.isRightValue = isRightCheck(selectRow, selectColumn, number)
         cell.value = number
 
         cellsLiveData.postValue(board.cells)
         isFinishedLiveData.postValue(isFinished())
     }
+
+    fun ischeck(number: Int) : Boolean{
+
+        val cell = board.getCell(selectRow, selectColumn)
+        cell.isRightValue = isRightCheck(selectRow, selectColumn, number)
+        if(cell.isRightValue)
+            return true
+        return false
+
+    }
+
 
     //Update select cell
     fun updateSelectCell(row: Int, col: Int){
@@ -311,13 +325,15 @@ class SudokuGame {
                         return false
         return true
     }
-
     //Function to check if the value input is equal to the value in the solution
+
     private fun isRightCheck(row: Int, col: Int, number: Int): Boolean {
         if (number == solution[row * boardSize + col].value)
             return true
         return false
     }
+
+
 
     //Function to check if the game is finished or not
     private fun isFinished(): Boolean {
