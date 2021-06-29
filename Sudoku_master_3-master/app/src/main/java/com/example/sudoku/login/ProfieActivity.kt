@@ -48,16 +48,14 @@ class ProfieActivity : AppCompatActivity() {
                 R.id.home -> {}
                 R.id.ranking -> {
                     val intent = Intent(this, RankingActivity::class.java)
-                    intent.putExtra("Id",tvID.text)
+                    intent.putExtra("id1",tvID.text)
                     startActivity(intent)
-                    finish()
                     overridePendingTransition(0, 0)
                 }
                 R.id.Statistics->{
                     val intent = Intent(this, StatisticsActivity::class.java)
-                    intent.putExtra("Id",tvID.text)
+                    intent.putExtra("id1",tvID.text)
                     startActivity(intent)
-                    finish()
                     overridePendingTransition(0, 0)
                 }
 
@@ -82,7 +80,7 @@ class ProfieActivity : AppCompatActivity() {
             var pesonName: String? = task.displayName
             var personEmail: String? = task.email
             var personID: String = task.id.toString()
-            val user = User(pesonName.toString(), personEmail.toString(),"",0,"","","","")
+            val user = User(pesonName.toString(), personEmail.toString(),"",0,"","","","","")
             databaseArtists.child(personID).setValue(user)
             tvName.setText(pesonName)
             tvEmail.setText(personEmail)
@@ -129,8 +127,22 @@ class ProfieActivity : AppCompatActivity() {
 
     private fun getProfie(){
         var intent : Intent = getIntent()
-        var Email: String? = null
-            Email= intent.getStringExtra("email")
+        var Email: String = ""
+
+        var id: String=""
+        if(intent.getStringExtra("id2")==null)
+        {
+            if(intent.getStringExtra("id3") != null){
+            id=intent.getStringExtra("id3")}
+            else{
+                id=" "
+                Email= intent.getStringExtra("email")
+            }
+        }
+        else {
+            id= intent.getStringExtra("id2")
+        }
+
         val rootRef = FirebaseDatabase.getInstance().reference
         val hotelRef = rootRef.child("Users")
         val eventListener: ValueEventListener = object : ValueEventListener {
@@ -138,11 +150,12 @@ class ProfieActivity : AppCompatActivity() {
                 for (ds in dataSnapshot.children) {
                     val name = ds.child("name").getValue(String::class.java)
                     val email = ds.child("email").getValue(String::class.java)
-
-                    if(email == Email){
+                    val ID = ds.key.toString()
+                    if(email == Email || ID == id){
                         Log.d("TAG", "$name")
                         tvName.setText(name)
                         tvID.setText(ds.key.toString())
+                        tvEmail.setText(email)
                     }
                 }
             }
@@ -150,7 +163,6 @@ class ProfieActivity : AppCompatActivity() {
             override fun onCancelled(databaseError: DatabaseError) {}
         }
         hotelRef.addListenerForSingleValueEvent(eventListener)
-        tvEmail.setText(Email)
     }
     private fun result() {
         val databaseArtists: DatabaseReference
@@ -193,7 +205,7 @@ class ProfieActivity : AppCompatActivity() {
 
                         }
                         if(temp == 0) {
-                            val user = User(name, email, "", 0, "","","","")
+                            val user = User(name, email, "", 0,"", "","","","")
                             databaseArtists.child(gender).setValue(user)
                         }
                         else{

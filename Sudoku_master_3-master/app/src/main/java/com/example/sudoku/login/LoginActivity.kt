@@ -2,8 +2,12 @@ package com.example.sudoku.login
 
 import android.content.Intent
 import android.os.Bundle
+import android.text.method.PasswordTransformationMethod
 import android.util.Log
 import android.view.View
+import android.widget.CheckBox
+import android.widget.CompoundButton
+import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.sudoku.R
@@ -41,6 +45,19 @@ class LoginActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
+
+        //Check box hiện và ẩn password
+        var etPassword = findViewById<View>(R.id.editPassword) as EditText
+        etPassword.setTransformationMethod(PasswordTransformationMethod()) // Hide password initially
+
+        var checkBoxShowPwd = findViewById<View>(R.id.checkBox) as CheckBox
+        checkBoxShowPwd.setOnCheckedChangeListener(CompoundButton.OnCheckedChangeListener { arg0, isChecked ->
+            if (isChecked) {
+                etPassword.setTransformationMethod(null) // Show password when box checked
+            } else {
+                etPassword.setTransformationMethod(PasswordTransformationMethod()) // Hide password when box not checked
+            }
+        })
 
         //Login Firebase
         auth = Firebase.auth

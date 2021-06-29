@@ -174,12 +174,12 @@ class MainActivity : AppCompatActivity(), BoardView.OnTouchListener{
         var tab:String = "                        "
         var Tab:String=""
         var id : String = intent.getStringExtra("ID")
-
         val dialog = AlertDialog.Builder(this, AlertDialog.THEME_HOLO_LIGHT)
         dialog.setIcon(R.drawable.finish_icon)
         dialog.setTitle("Congratulations!")
         dialog.setMessage("You have finished the sudoku at $time seconds. Cheers for the hard work!")
         Firebase.database.reference.child("Users").child(id).child("time").push().setValue(time)
+
         val df: DateFormat = SimpleDateFormat("d MMM yyyy, HH:mm:ss")
         val date: String = df.format(Calendar.getInstance().getTime())
         val rootRef = FirebaseDatabase.getInstance().reference
@@ -192,9 +192,11 @@ class MainActivity : AppCompatActivity(), BoardView.OnTouchListener{
                         Tab = "         "
                     }
                     else if (level == "Normal"){
-                        Tab = "   "
+                        Tab = "     "
                     }
                     var level_time : String = level+Tab+time.toString() + " seconds " +"\n"+tab+ date
+                    var result : String= level+" win"
+                    Firebase.database.reference.child("Users").child(id).child("result").push().setValue(result)
                     Firebase.database.reference.child("Users").child(id).child("level_Time").push().setValue(level_time)
                 }
             }
@@ -240,7 +242,22 @@ class MainActivity : AppCompatActivity(), BoardView.OnTouchListener{
     }
     //Game Over
     private fun showGameOverDialog(){
-
+        var intent : Intent = getIntent()
+        var id:String=intent.getStringExtra("ID")
+        val rootRef = FirebaseDatabase.getInstance().reference
+        val hotelRef = rootRef.child("Users").child(id).child("level").limitToLast(1)
+        val eventListener: ValueEventListener = object : ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                for (ds in dataSnapshot.children) {
+                    var level = ds.getValue().toString()
+                    var result : String= level+" lose"
+                    Firebase.database.reference.child("Users").child(id).child("result").push().setValue(result)
+                }
+            }
+            override fun onCancelled(databaseError: DatabaseError) {
+            }
+        }
+        hotelRef.addListenerForSingleValueEvent(eventListener)
         val dialog = AlertDialog.Builder(this, AlertDialog.THEME_HOLO_DARK)
         dialog.setIcon(R.drawable.exit_game_icon)
         dialog.setTitle("Notify!")
