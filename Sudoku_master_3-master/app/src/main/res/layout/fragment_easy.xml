@@ -41,6 +41,7 @@
              />
 
          <TextView
+             android:id="@+id/gamestarted"
              android:layout_width="wrap_content"
              android:layout_height="wrap_content"
              android:layout_marginLeft="110dp"
@@ -66,6 +67,7 @@
                 />
 
             <TextView
+                android:id="@+id/gamewon"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="110dp"
@@ -91,6 +93,7 @@
                 />
 
             <TextView
+                android:id="@+id/winrate"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="90dp"
@@ -135,6 +138,7 @@
                 />
 
             <TextView
+                android:id="@+id/besttime"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="110dp"
@@ -160,6 +164,7 @@
                 />
 
             <TextView
+                android:id="@+id/averagetime"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="110dp"
@@ -172,6 +177,7 @@
 
     </TableLayout>
     <TextView
+        android:id="@+id/Streak"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginLeft="10dp"
@@ -203,6 +209,7 @@
                 />
 
             <TextView
+                android:id="@+id/CurentStreak"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="40dp"
@@ -228,6 +235,7 @@
                 />
 
             <TextView
+                android:id="@+id/BestStreak"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="40dp"

@@ -1,9 +1,14 @@
 package com.example.sudoku.login
 
 import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Bundle
+import android.text.method.PasswordTransformationMethod
 import android.util.Log
 import android.view.View
+import android.widget.CheckBox
+import android.widget.CompoundButton
+import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.sudoku.R
@@ -36,11 +41,30 @@ class LoginActivity : AppCompatActivity() {
     private lateinit var googleSignInClient :GoogleSignInClient
     val RC_SIGN_IN = 1
     lateinit var auth: FirebaseAuth
-
+    lateinit var mshare : SharedPreferences
+    var isRemembered = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
+        //Set email và matkhau
+        mshare = getSharedPreferences("dataLogin", MODE_PRIVATE)
+        editEmail.setText(mshare.getString("taikhoan",""))
+        editPassword.setText(mshare.getString("matkhau",""))
+        isRemembered = mshare.getBoolean("checked",false)
+
+        //Check box hiện và ẩn password
+        var etPassword = findViewById<View>(R.id.editPassword) as EditText
+        etPassword.setTransformationMethod(PasswordTransformationMethod()) // Hide password initially
+
+        var checkBoxShowPwd = findViewById<View>(R.id.checkBox) as CheckBox
+        checkBoxShowPwd.setOnCheckedChangeListener(CompoundButton.OnCheckedChangeListener { arg0, isChecked ->
+            if (isChecked) {
+                etPassword.setTransformationMethod(null) // Show password when box checked
+            } else {
+                etPassword.setTransformationMethod(PasswordTransformationMethod()) // Hide password when box not checked
+            }
+        })
 
         //Login Firebase
         auth = Firebase.auth
@@ -65,7 +89,6 @@ class LoginActivity : AppCompatActivity() {
             loginButton.registerCallback(callbackManager, object : FacebookCallback<LoginResult?> {
             override fun onSuccess(loginResult: LoginResult?) {
                 // App code
-                Log.d("Login Facebook", "Đăng nhập thành công !")
                 startActivity(Intent(this@LoginActivity, ProfieActivity::class.java))
             }
 
@@ -95,11 +118,25 @@ class LoginActivity : AppCompatActivity() {
 
     }
     private fun SignIn(){
-        var email : String = editEmail.text.toString();
-        var password : String = editPassword.text.toString();
+        val email : String = editEmail.text.toString();
+        val password : String = editPassword.text.toString();
+        val check : Boolean = checkB.isChecked()
         auth.signInWithEmailAndPassword(email, password)
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
+                    if(checkB.isChecked()){
+                        val edittor : SharedPreferences.Editor = mshare.edit()
+                        edittor.putString("taikhoan",email)
+                        edittor.putString("matkhau",password)
+                        edittor.putBoolean("checked",check)
+                        edittor.apply()
+                    }else{
+                        val edittor : SharedPreferences.Editor = mshare.edit()
+                        edittor.remove("taikhoan")
+                        edittor.remove("matkhau")
+                        edittor.remove("checked")
+                        edittor.apply()
+                    }
                     task.result?.user?.uid?.let {
                         Firebase.database.reference.child("Users").child(it).addListenerForSingleValueEvent(object : ValueEventListener {
                             override fun onDataChange(snapshot: DataSnapshot) {

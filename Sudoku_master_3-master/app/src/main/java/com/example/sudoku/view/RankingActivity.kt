@@ -1,5 +1,6 @@
 package com.example.sudoku.view
 
+import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.Intent
 import android.graphics.Color
@@ -41,13 +42,21 @@ class RankingActivity : AppCompatActivity() {
         bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottom_navigation)
         bottomNavigationView.setSelectedItemId(R.id.ranking)
         var intent: Intent = getIntent()
-        var id: String = intent.getStringExtra("Id")
-
+        var id: String
+        if(intent.getStringExtra("id1")==null)
+        {
+            if(intent.getStringExtra("id3") != null){
+                id=intent.getStringExtra("id3")}
+            else{id=" "}
+        }
+        else{
+            id= intent.getStringExtra("id1")
+        }
         bottomNavigationView.setOnNavigationItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.home -> {
                     val intent = Intent(this, ProfieActivity::class.java)
-                    intent.putExtra("iD",id)
+                    intent.putExtra("id2",id)
                     startActivity(intent)
                     finish()
                     overridePendingTransition(0, 0)
@@ -56,7 +65,7 @@ class RankingActivity : AppCompatActivity() {
                 }
                 R.id.Statistics->{
                     val intent = Intent(this, StatisticsActivity::class.java)
-                    intent.putExtra("Id",id)
+                    intent.putExtra("id2",id)
                     startActivity(intent)
                     finish()
                     overridePendingTransition(0, 0)
@@ -105,7 +114,16 @@ class RankingActivity : AppCompatActivity() {
         val recyclerView: RecyclerView = findViewById(R.id.recycler_view)
         val arr = java.util.ArrayList<Item>()
         var intent: Intent = getIntent()
-        var id: String = intent.getStringExtra("Id")
+        var id: String
+        if(intent.getStringExtra("id1")==null)
+        {
+            if(intent.getStringExtra("id3") != null){
+                id=intent.getStringExtra("id3")}
+            else{id=" "}
+        }
+        else {
+            id= intent.getStringExtra("id1")
+        }
         var Tab:String=""
         items = ArrayList<String>()
         var I = ArrayList<String>()
@@ -115,11 +133,10 @@ class RankingActivity : AppCompatActivity() {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 for (ds in dataSnapshot.children) {
 
-                    var Id = ds.key.toString()
                     var level_time = ds.getValue().toString()
-                    //if(level=="Easy"){
-                    val f = Pattern.compile(level)
-                    val m = f.matcher(level_time)
+                    //Lọc ra danh sách theo từng cấp độ chơi vào mảng items
+                    val f = Pattern.compile(level)//chuỗi cần tìm
+                    val m = f.matcher(level_time)//chuỗi cho trước
                     while (m.find()) {
                             items.add(level_time)
                     }
@@ -127,20 +144,23 @@ class RankingActivity : AppCompatActivity() {
                 if(items.size != 0 ){
                     val ar = java.util.ArrayList<Int>()
                     var s: List<String>
+                    if(level == "Easy" || level == "Hard"){
+                        Tab = "         "
+                    }
+                    else if (level == "Normal"){
+                        Tab = "     "
+                    }
                     for (i in 0 until (items.size)) {
-                        if(level == "Easy" || level == "Hard"){
-                            Tab = "         "
-                        }
-                        else if (level == "Normal"){
-                            Tab = "   "
-                        }
                         s = items.get(i).toString().split(Tab," ")
                         val m = Integer.parseInt(s[1])
                         ar.add(m)
                     }
-                    sortASC(ar)
-                    for (i in 0 until (items.size)) {
-                        val p = Pattern.compile(ar[i].toString())
+                    val set: Set<Int> = LinkedHashSet<Int>(ar)//Constructing LiskedHashSet de loai bo phan tu trung lap
+                    // Constructing listWithoutDuplicateElements using set
+                    val listWithoutDuplicateElements: java.util.ArrayList<Int> = java.util.ArrayList(set)
+                    sortASC(listWithoutDuplicateElements)
+                    for (i in 0 until (listWithoutDuplicateElements.size)) {
+                        val p = Pattern.compile(level+Tab+listWithoutDuplicateElements[i].toString())
                         for (j in 0 until (items.size)) {
                             val m = p.matcher(items.get(j).toString())
                             while (m.find()) {
@@ -150,7 +170,6 @@ class RankingActivity : AppCompatActivity() {
                             }
                         }
                     }
-                    AddDataTopTime(arr.get(0).Time,id)
                     flowersAdapter.submitList(arr)
                     recyclerView.adapter = flowersAdapter
                 }
@@ -166,6 +185,7 @@ class RankingActivity : AppCompatActivity() {
         hotelRef.addListenerForSingleValueEvent(eventListener)
 
     }
+    //sắp xếp mảng các số theo thứ tự tăng dần
     fun sortASC(arr: java.util.ArrayList<Int>) {
         var temp = arr[0]
         for (i in 0 until arr.size - 1) {
@@ -212,8 +232,6 @@ class RankingActivity : AppCompatActivity() {
     private fun showListPublic(level: String){
         val Adapter = FlowersAdapter { flower -> adapterOnClick(flower) }
         val recyclerView: RecyclerView = findViewById(R.id.recycler_view)
-        var intent: Intent = getIntent()
-        var id: String = intent.getStringExtra("Id")
         var value : String =""
         var Tab:String=""
         var Items= java.util.ArrayList<String>()
@@ -234,9 +252,8 @@ class RankingActivity : AppCompatActivity() {
                     if (top_time!=""){
                         Items.add(top_time.toString())
                     }
-
-
                 }
+
                 if(Items.size != 0 ){
                     val ar = java.util.ArrayList<Int>()
                     var s: List<String>
@@ -245,7 +262,7 @@ class RankingActivity : AppCompatActivity() {
                             Tab = "         "
                         }
                         else if (level == "Normal"){
-                            Tab = "   "
+                            Tab = "     "
                         }
                         s = Items.get(i).toString().split(Tab," ")
                         val m = Integer.parseInt(s[1])
@@ -258,15 +275,17 @@ class RankingActivity : AppCompatActivity() {
                             val m = p.matcher(Items.get(j).toString())
                             while (m.find()) {
                                 val user = Item("top "+(i+1).toString(),Items.get(j), 0.toString())
-                                arr.add(user)
-                                Adapter.notifyDataSetChanged()
+                                if(user != null){
+                                       arr.add(user)
+                                       Adapter.notifyDataSetChanged()
+                                }
                             }
                         }
                     }
                     for(i in 0 until arr.size)
                     {
                         if(i<3) {
-                            var toptime = Item("top "+i.toString(), arr.get(i).Time, "")
+                            var toptime = Item("top "+(i+1).toString(), arr.get(i).Time, "")
                             arr1.add(toptime)
                         }
                     }
@@ -282,7 +301,6 @@ class RankingActivity : AppCompatActivity() {
             }
         }
         hotelRef.addListenerForSingleValueEvent(eventListener)
-
     }
 
     private fun showDialog(string: String){
@@ -311,11 +329,81 @@ class RankingActivity : AppCompatActivity() {
                 }
                 if(string == "1"){ showList(level)}
                 else if(string == "2"){
+                    UpdateData(level)
                     showListPublic(level)}
 
             }
         }
         dialog.show()
+    }
+    //Cập nhật dữ liệu thời gian nhanh nhất theo từng mức độ chơi
+    private fun UpdateData(level:String){
+        val arr = java.util.ArrayList<Item>()
+        var intent: Intent = getIntent()
+        var id: String
+        if(intent.getStringExtra("id1")==null)
+        {
+            if(intent.getStringExtra("id3") != null){
+                id=intent.getStringExtra("id3")}
+            else{id=" "}
+        }
+        else {
+            id= intent.getStringExtra("id1")
+        }
+        var Tab:String=""
+        items = ArrayList<String>()
+        var I = ArrayList<String>()
+        val database = FirebaseDatabase.getInstance().reference
+        val hotelRef = database.child("Users").child(id).child("level_Time")
+        val eventListener: ValueEventListener = object : ValueEventListener {
+            @SuppressLint("ResourceAsColor")
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                for (ds in dataSnapshot.children) {
+                    var Id = ds.key.toString()
+                    var level_time = ds.getValue().toString()
+                    //if(level=="Easy"){
+                    val f = Pattern.compile(level)
+                    val m = f.matcher(level_time)
+                    while (m.find()) {
+                        items.add(level_time)
+                    }
+                }
+                if(items.size != 0 ){
+                    val ar = java.util.ArrayList<Int>()
+                    var s: List<String>
+                    for (i in 0 until (items.size)) {
+                        if(level == "Easy" || level == "Hard"){
+                            Tab = "         "
+                        }
+                        else if (level == "Normal"){
+                            Tab = "     "
+                        }
+                        s = items.get(i).toString().split(Tab," ")
+                        val m = Integer.parseInt(s[1])
+                        ar.add(m)
+                    }
+                    //tv_rank.setText(ar.toString())
+                    sortASC(ar)
+                    for (i in 0 until (items.size)) {
+                        val p = Pattern.compile(ar[i].toString())
+                        for (j in 0 until (items.size)) {
+                            val m = p.matcher(items.get(j).toString())
+                            while (m.find()) {
+                                val user = Item("Top "+(i+1).toString(),items.get(j), 0.toString())
+                                arr.add(user)
+                            }
+                        }
+                    }
+                    AddDataTopTime(arr.get(0).Time,id)
+                }
+            }
+            override fun onCancelled(databaseError: DatabaseError) {
+                Toast.makeText(this@RankingActivity,"Lấy data thất bại",
+                    Toast.LENGTH_SHORT).show()
+            }
+        }
+        hotelRef.addListenerForSingleValueEvent(eventListener)
+
     }
     private fun adapterOnClick(user: Item) {
         val dialog = AlertDialog.Builder(this, AlertDialog.THEME_HOLO_DARK)
@@ -364,7 +452,8 @@ class RankingActivity : AppCompatActivity() {
                     "Top 3" -> {
                         TV_level.setText("")
                         TV_level.setBackgroundResource(R.drawable.ic_3rd_place_medal)}
-                    else -> {}
+                    else -> {
+                    }
                 }
             }
         }

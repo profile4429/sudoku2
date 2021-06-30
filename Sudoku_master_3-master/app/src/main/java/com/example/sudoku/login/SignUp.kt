@@ -42,7 +42,7 @@ class SignUp : AppCompatActivity() {
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful && task.result?.user?.uid != null) {
                     val name = editName.text.toString()
-                    val user = User(name,email,"",0,"","","","")
+                    val user = User(name,email,"",0,"","","","","")
                     database.child("Users").child(task.result!!.user!!.uid).setValue(user)
                     Toast.makeText(this, "Đăng Kí Thành Công", Toast.LENGTH_SHORT).show()
                     val intent: Intent = Intent(this, LoginActivity::class.java)
