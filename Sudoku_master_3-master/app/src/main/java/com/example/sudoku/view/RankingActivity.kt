@@ -11,16 +11,15 @@ import android.view.ViewGroup
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.example.sudoku.Fragment.Adapter.RankAdapter
 import com.example.sudoku.R
 import com.example.sudoku.login.Item
 import com.example.sudoku.login.ProfieActivity
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.ValueEventListener
+import com.google.firebase.database.*
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.activity_profie.*
 import kotlinx.android.synthetic.main.activity_ranking.*
@@ -32,40 +31,43 @@ import kotlin.collections.ArrayList
 class RankingActivity : AppCompatActivity() {
 
     private lateinit var bottomNavigationView: BottomNavigationView
-    private lateinit var listview: ListView
+
     private lateinit var items: ArrayList<String>
+
+    val list = ArrayList<Item>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_ranking)
 
+
         bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottom_navigation)
         bottomNavigationView.setSelectedItemId(R.id.ranking)
         var intent: Intent = getIntent()
         var id: String
-        if(intent.getStringExtra("id1")==null)
-        {
-            if(intent.getStringExtra("id3") != null){
-                id=intent.getStringExtra("id3")}
-            else{id=" "}
-        }
-        else{
-            id= intent.getStringExtra("id1")
+        if (intent.getStringExtra("id1") == null) {
+            if (intent.getStringExtra("id3") != null) {
+                id = intent.getStringExtra("id3")
+            } else {
+                id = " "
+            }
+        } else {
+            id = intent.getStringExtra("id1")
         }
         bottomNavigationView.setOnNavigationItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.home -> {
                     val intent = Intent(this, ProfieActivity::class.java)
-                    intent.putExtra("id2",id)
+                    intent.putExtra("id2", id)
                     startActivity(intent)
                     finish()
                     overridePendingTransition(0, 0)
                 }
                 R.id.ranking -> {
                 }
-                R.id.Statistics->{
+                R.id.Statistics -> {
                     val intent = Intent(this, StatisticsActivity::class.java)
-                    intent.putExtra("id2",id)
+                    intent.putExtra("id2", id)
                     startActivity(intent)
                     finish()
                     overridePendingTransition(0, 0)
@@ -75,10 +77,11 @@ class RankingActivity : AppCompatActivity() {
         }
         //ListView
 
-       setListeners()
+        setListeners()
 
     }
-    private fun makeBackground(view: View){
+
+    private fun makeBackground(view: View) {
         when (view.id) {
             R.id.btn_personal -> {
                 view.setBackgroundResource(R.drawable.round_bg)
@@ -101,30 +104,32 @@ class RankingActivity : AppCompatActivity() {
             else -> view.setBackgroundResource(R.color.White)
         }
     }
-    private fun setListeners(){
+
+    private fun setListeners() {
         val btnPerson = findViewById<Button>(R.id.btn_personal)
         val btnPublic = findViewById<Button>(R.id.btn_public)
-        val clickableViews: List<View> = listOf(btnPerson,btnPublic)
-        for (item in clickableViews){
-            item.setOnClickListener{makeBackground(it)}
+        val clickableViews: List<View> = listOf(btnPerson, btnPublic)
+        for (item in clickableViews) {
+            item.setOnClickListener { makeBackground(it) }
         }
     }
-    private fun showList(level:String){
-        val flowersAdapter = FlowersAdapter { flower -> adapterOnClick(flower) }
+
+    private fun showList(level: String) {
+        val adapter = Adapter { flower -> adapterOnClick(flower) }
         val recyclerView: RecyclerView = findViewById(R.id.recycler_view)
         val arr = java.util.ArrayList<Item>()
         var intent: Intent = getIntent()
         var id: String
-        if(intent.getStringExtra("id1")==null)
-        {
-            if(intent.getStringExtra("id3") != null){
-                id=intent.getStringExtra("id3")}
-            else{id=" "}
+        if (intent.getStringExtra("id1") == null) {
+            if (intent.getStringExtra("id3") != null) {
+                id = intent.getStringExtra("id3")
+            } else {
+                id = " "
+            }
+        } else {
+            id = intent.getStringExtra("id1")
         }
-        else {
-            id= intent.getStringExtra("id1")
-        }
-        var Tab:String=""
+        var Tab: String = ""
         items = ArrayList<String>()
         var I = ArrayList<String>()
         val database = FirebaseDatabase.getInstance().reference
@@ -138,53 +143,58 @@ class RankingActivity : AppCompatActivity() {
                     val f = Pattern.compile(level)//chuỗi cần tìm
                     val m = f.matcher(level_time)//chuỗi cho trước
                     while (m.find()) {
-                            items.add(level_time)
+                        items.add(level_time)
                     }
                 }
-                if(items.size != 0 ){
+                if (items.size != 0) {
                     val ar = java.util.ArrayList<Int>()
                     var s: List<String>
-                    if(level == "Easy" || level == "Hard"){
+                    if (level == "Easy" || level == "Hard") {
                         Tab = "         "
-                    }
-                    else if (level == "Normal"){
+                    } else if (level == "Normal") {
                         Tab = "     "
                     }
                     for (i in 0 until (items.size)) {
-                        s = items.get(i).toString().split(Tab," ")
+                        s = items.get(i).toString().split(Tab, " ")
                         val m = Integer.parseInt(s[1])
                         ar.add(m)
                     }
-                    val set: Set<Int> = LinkedHashSet<Int>(ar)//Constructing LiskedHashSet de loai bo phan tu trung lap
+                    val set: Set<Int> =
+                        LinkedHashSet<Int>(ar)//Constructing LiskedHashSet de loai bo phan tu trung lap
                     // Constructing listWithoutDuplicateElements using set
-                    val listWithoutDuplicateElements: java.util.ArrayList<Int> = java.util.ArrayList(set)
+                    val listWithoutDuplicateElements: java.util.ArrayList<Int> =
+                        java.util.ArrayList(set)
                     sortASC(listWithoutDuplicateElements)
                     for (i in 0 until (listWithoutDuplicateElements.size)) {
-                        val p = Pattern.compile(level+Tab+listWithoutDuplicateElements[i].toString())
+                        val p =
+                            Pattern.compile(level + Tab + listWithoutDuplicateElements[i].toString())
                         for (j in 0 until (items.size)) {
                             val m = p.matcher(items.get(j).toString())
                             while (m.find()) {
-                                val user = Item("Top "+(i+1).toString(),items.get(j), 0.toString())
+                                val user = Item("","",(i + 1).toString(), items.get(j), 0.toString())
                                 arr.add(user)
-                                flowersAdapter.notifyDataSetChanged()
+                                adapter.notifyDataSetChanged()
                             }
                         }
                     }
-                    flowersAdapter.submitList(arr)
-                    recyclerView.adapter = flowersAdapter
-                }
-                else{
-                    recyclerView.adapter = flowersAdapter
+                    adapter.submitList(arr)
+                    recyclerView.adapter = adapter
+                } else {
+                    recyclerView.adapter = adapter
                 }
             }
+
             override fun onCancelled(databaseError: DatabaseError) {
-                Toast.makeText(this@RankingActivity,"Lấy data thất bại",
-                    Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    this@RankingActivity, "Lấy data thất bại",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         }
         hotelRef.addListenerForSingleValueEvent(eventListener)
 
     }
+
     //sắp xếp mảng các số theo thứ tự tăng dần
     fun sortASC(arr: java.util.ArrayList<Int>) {
         var temp = arr[0]
@@ -198,30 +208,34 @@ class RankingActivity : AppCompatActivity() {
             }
         }
     }
+
     //Them du lieu thoi gian nhanh nhat cua easy,normal,hard vao firebase
-    private fun AddDataTopTime(string: String,id: String){
+    private fun AddDataTopTime(string: String, id: String) {
         val diffName: Array<String> = arrayOf("Easy", "Normal", "Hard")
-        for(i in 0 until diffName.size){
-            when(diffName.get(i)) {
+        for (i in 0 until diffName.size) {
+            when (diffName.get(i)) {
                 "Easy" -> {
                     val p = Pattern.compile("Easy")
                     val m = p.matcher(string)
-                    while(m.find()){
-                        FirebaseDatabase.getInstance().reference.child("Users").child(id).child("top_time_easy").setValue(string)
+                    while (m.find()) {
+                        FirebaseDatabase.getInstance().reference.child("Users").child(id)
+                            .child("top_time_easy").setValue(string)
                     }
                 }
                 "Normal" -> {
                     val p = Pattern.compile("Normal")
                     val m = p.matcher(string)
-                    while(m.find()){
-                        FirebaseDatabase.getInstance().reference.child("Users").child(id).child("top_time_normal").setValue(string)
+                    while (m.find()) {
+                        FirebaseDatabase.getInstance().reference.child("Users").child(id)
+                            .child("top_time_normal").setValue(string)
                     }
                 }
                 "Hard" -> {
                     val p = Pattern.compile("Hard")
                     val m = p.matcher(string)
-                    while(m.find()){
-                        FirebaseDatabase.getInstance().reference.child("Users").child(id).child("top_time_hard").setValue(string)
+                    while (m.find()) {
+                        FirebaseDatabase.getInstance().reference.child("Users").child(id)
+                            .child("top_time_hard").setValue(string)
                     }
                 }
             }
@@ -229,12 +243,11 @@ class RankingActivity : AppCompatActivity() {
         }
 
     }
-    private fun showListPublic(level: String){
-        val Adapter = FlowersAdapter { flower -> adapterOnClick(flower) }
-        val recyclerView: RecyclerView = findViewById(R.id.recycler_view)
-        var value : String =""
-        var Tab:String=""
-        var Items= java.util.ArrayList<String>()
+
+    private fun showListPublic(level: String) {
+        var value: String = ""
+        var Tab: String = ""
+        var Items = java.util.ArrayList<String>()
         val arr = java.util.ArrayList<Item>()
         val arr1 = java.util.ArrayList<Item>()
         val database = FirebaseDatabase.getInstance().reference
@@ -242,42 +255,42 @@ class RankingActivity : AppCompatActivity() {
         val eventListener: ValueEventListener = object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 for (ds in dataSnapshot.children) {
-                    when(level)
-                    {
-                        "Easy"-> value = "top_time_easy"
-                        "Normal"-> value = "top_time_normal"
-                        "Hard"-> value = "top_time_hard"
+                    when (level) {
+                        "Easy" -> value = "top_time_easy"
+                        "Normal" -> value = "top_time_normal"
+                        "Hard" -> value = "top_time_hard"
                     }
                     val top_time = ds.child(value).getValue(String::class.java)
-                    if (top_time!=""){
+                    if (top_time != "") {
                         Items.add(top_time.toString())
                     }
                 }
 
-                if(Items.size != 0 ){
+                if (Items.size != 0) {
                     val ar = java.util.ArrayList<Int>()
                     var s: List<String>
                     for (i in 0 until (Items.size)) {
-                        if(level == "Easy" || level == "Hard"){
+                        if (level == "Easy" || level == "Hard") {
                             Tab = "         "
-                        }
-                        else if (level == "Normal"){
+                        } else if (level == "Normal") {
                             Tab = "     "
                         }
-                        s = Items.get(i).toString().split(Tab," ")
+                        s = Items.get(i).toString().split(Tab, " ")
                         val m = Integer.parseInt(s[1])
                         ar.add(m)
                     }
-                    sortASC(ar)
+                    val set: Set<Int> = LinkedHashSet<Int>(ar)
+                    val listWithoutDuplicateElements: java.util.ArrayList<Int> =
+                        java.util.ArrayList(set)
+                    sortASC(listWithoutDuplicateElements)
                     for (i in 0 until (Items.size)) {
-                        val p = Pattern.compile(ar[i].toString())
+                        val p = Pattern.compile(level + Tab + listWithoutDuplicateElements[i].toString())
                         for (j in 0 until (Items.size)) {
                             val m = p.matcher(Items.get(j).toString())
                             while (m.find()) {
-                                val user = Item("top "+(i+1).toString(),Items.get(j), 0.toString())
-                                if(user != null){
-                                       arr.add(user)
-                                       Adapter.notifyDataSetChanged()
+                                val user = Item("",""," "+(i + 1).toString(), Items.get(j), 0.toString())
+                                if (user != null) {
+                                    arr.add(user)
                                 }
                             }
                         }
@@ -285,31 +298,69 @@ class RankingActivity : AppCompatActivity() {
                     for(i in 0 until arr.size)
                     {
                         if(i<3) {
-                            var toptime = Item("top "+(i+1).toString(), arr.get(i).Time, "")
-                            arr1.add(toptime)
+                            setDataUser(level,arr.get(i).Time,i,arr1)
                         }
                     }
-                    Adapter.submitList(arr1)
-                    recyclerView.adapter = Adapter
+
+
+                } else {
                 }
-                else{recyclerView.adapter = Adapter}
 
             }
+
             override fun onCancelled(databaseError: DatabaseError) {
-                Toast.makeText(this@RankingActivity,"Lấy data thất bại",
-                    Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    this@RankingActivity, "Lấy data thất bại",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         }
         hotelRef.addListenerForSingleValueEvent(eventListener)
     }
+    private fun setDataUser(level: String,time: String,i :Int,arr1 : ArrayList<Item>){
+        val recyclerView: RecyclerView = findViewById(R.id.recycler_view)
+        var Items = java.util.ArrayList<String>()
+        var adapter = RankAdapter(arr1)
+        var value =""
+        val database = FirebaseDatabase.getInstance().reference
+        val hotelRef = database.child("Users")
+        val eventListener: ValueEventListener = object : ValueEventListener {
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                for (ds in dataSnapshot.children) {
+                    when (level) {
+                        "Easy" -> value = "top_time_easy"
+                        "Normal" -> value = "top_time_normal"
+                        "Hard" -> value = "top_time_hard"
+                    }
+                    val top_time = ds.child(value).getValue(String::class.java)
+                    val name = ds.child("name").getValue(String::class.java)
+                    val email = ds.child("email").getValue(String::class.java)
+                    if (top_time == time) {
+                        var toptime = Item(name.toString(),email.toString()," "+(i + 1).toString(), time, "")
+                        arr1.add(toptime)
+                    }
+                }
+                adapter= RankAdapter(arr1)
+                recyclerView.adapter = adapter
 
-    private fun showDialog(string: String){
+            }
+
+            override fun onCancelled(databaseError: DatabaseError) {
+                Toast.makeText(
+                    this@RankingActivity, "Lấy data thất bại",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        }
+        hotelRef.addListenerForSingleValueEvent(eventListener)
+    }
+    private fun showDialog(string: String) {
         val diffNumber: Array<Int> = arrayOf(32, 40, 48)
         val diffName: Array<String> = arrayOf("Easy", "Normal", "Hard")
         var diffChoice = 32
-        var level : String =""
+        var level: String = ""
         val dialog = AlertDialog.Builder(this, AlertDialog.THEME_HOLO_DARK)
-        dialog.setIcon(R.drawable.exit_game_icon)
+        dialog.setIcon(R.drawable.ic_level)
         dialog.setTitle("Choose your game difficulty:")
         dialog.setSingleChoiceItems(diffName, 0) { _, i ->
             diffChoice = diffNumber[i]
@@ -327,30 +378,34 @@ class RankingActivity : AppCompatActivity() {
                 } else if (diffChoice == 48) {
                     level = "Hard"
                 }
-                if(string == "1"){ showList(level)}
-                else if(string == "2"){
+                if (string == "1") {
+                    showList(level)
+                } else if (string == "2") {
                     UpdateData(level)
-                    showListPublic(level)}
+                    showListPublic(level)
+
+                }
 
             }
         }
         dialog.show()
     }
+
     //Cập nhật dữ liệu thời gian nhanh nhất theo từng mức độ chơi
-    private fun UpdateData(level:String){
+    private fun UpdateData(level: String) {
         val arr = java.util.ArrayList<Item>()
         var intent: Intent = getIntent()
         var id: String
-        if(intent.getStringExtra("id1")==null)
-        {
-            if(intent.getStringExtra("id3") != null){
-                id=intent.getStringExtra("id3")}
-            else{id=" "}
+        if (intent.getStringExtra("id1") == null) {
+            if (intent.getStringExtra("id3") != null) {
+                id = intent.getStringExtra("id3")
+            } else {
+                id = " "
+            }
+        } else {
+            id = intent.getStringExtra("id1")
         }
-        else {
-            id= intent.getStringExtra("id1")
-        }
-        var Tab:String=""
+        var Tab: String = ""
         items = ArrayList<String>()
         var I = ArrayList<String>()
         val database = FirebaseDatabase.getInstance().reference
@@ -368,17 +423,16 @@ class RankingActivity : AppCompatActivity() {
                         items.add(level_time)
                     }
                 }
-                if(items.size != 0 ){
+                if (items.size != 0) {
                     val ar = java.util.ArrayList<Int>()
                     var s: List<String>
                     for (i in 0 until (items.size)) {
-                        if(level == "Easy" || level == "Hard"){
+                        if (level == "Easy" || level == "Hard") {
                             Tab = "         "
-                        }
-                        else if (level == "Normal"){
+                        } else if (level == "Normal") {
                             Tab = "     "
                         }
-                        s = items.get(i).toString().split(Tab," ")
+                        s = items.get(i).toString().split(Tab, " ")
                         val m = Integer.parseInt(s[1])
                         ar.add(m)
                     }
@@ -389,69 +443,83 @@ class RankingActivity : AppCompatActivity() {
                         for (j in 0 until (items.size)) {
                             val m = p.matcher(items.get(j).toString())
                             while (m.find()) {
-                                val user = Item("Top "+(i+1).toString(),items.get(j), 0.toString())
+                                val user =
+                                    Item("","","Top " + (i + 1).toString(), items.get(j), 0.toString())
                                 arr.add(user)
                             }
                         }
                     }
-                    AddDataTopTime(arr.get(0).Time,id)
+                    AddDataTopTime(arr.get(0).Time, id)
                 }
             }
+
             override fun onCancelled(databaseError: DatabaseError) {
-                Toast.makeText(this@RankingActivity,"Lấy data thất bại",
-                    Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    this@RankingActivity, "Lấy data thất bại",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         }
         hotelRef.addListenerForSingleValueEvent(eventListener)
 
     }
-    private fun adapterOnClick(user: Item) {
-        val dialog = AlertDialog.Builder(this, AlertDialog.THEME_HOLO_DARK)
-        dialog.setIcon(R.drawable.exit_game_icon)
-        dialog.setTitle("Choose your game difficulty:")
-        dialog.setNegativeButton("Cancel") {
-                dlg, _ -> dlg.dismiss()
-        }
-    }
 
-    class FlowersAdapter(private val onClick: (Item) -> Unit) :
-        ListAdapter<Item, FlowersAdapter.FlowerViewHolder>(FlowerDiffCallback) {
+    private fun adapterOnClick(user: Item) {
+
+    }
+    public fun show(){
+
+    }
+    class Adapter(private val onClick: (Item) -> Unit) :
+        ListAdapter<Item, Adapter.ViewHolder>(DiffCallback) {
 
         /* ViewHolder for Flower, takes in the inflated view and the onClick behavior. */
-        class FlowerViewHolder(itemView: View, val onClick: (Item) -> Unit) :
+        class ViewHolder(itemView: View, val onClick: (Item) -> Unit) :
             RecyclerView.ViewHolder(itemView) {
             private val TV_time: TextView = itemView.findViewById(R.id.tv_time)
             private val TV_level: TextView = itemView.findViewById(R.id.tv_level)
-            private var currentFlower: Item? = null
+            private var current: Item? = null
 
             init {
                 itemView.setOnClickListener {
-                    currentFlower?.let {
+                    current?.let {
                         onClick(it)
+
                     }
                 }
             }
 
             /* Bind flower name and image. */
             fun bind(user: Item) {
-                currentFlower = user
+                current = user
 
                 TV_level.text = user.Level
                 TV_time.text = user.Time
                 when (TV_level.text.toString()) {
-                    "top 1"->{
+                    " 1" -> {
                         TV_level.setText("")
-                        TV_level.setBackgroundResource(R.drawable.ic_trophy)
+                        TV_level.setBackgroundResource(R.drawable.ic_first)
                     }
-                    "Top 1" -> {
+                    " 2" -> {
                         TV_level.setText("")
-                        TV_level.setBackgroundResource(R.drawable.ic_1st_place_medal)}
-                    "Top 2" -> {
+                        TV_level.setBackgroundResource(R.drawable.ic_second)
+                    }
+                    " 3" -> {
                         TV_level.setText("")
-                        TV_level.setBackgroundResource(R.drawable.ic_2nd_place_medal)}
-                    "Top 3" -> {
+                        TV_level.setBackgroundResource(R.drawable.ic_third)
+                    }
+                    "1" -> {
                         TV_level.setText("")
-                        TV_level.setBackgroundResource(R.drawable.ic_3rd_place_medal)}
+                        TV_level.setBackgroundResource(R.drawable.ic_1st_place_medal)
+                    }
+                    "2" -> {
+                        TV_level.setText("")
+                        TV_level.setBackgroundResource(R.drawable.ic_2nd_place_medal)
+                    }
+                    "3" -> {
+                        TV_level.setText("")
+                        TV_level.setBackgroundResource(R.drawable.ic_3rd_place_medal)
+                    }
                     else -> {
                     }
                 }
@@ -459,21 +527,21 @@ class RankingActivity : AppCompatActivity() {
         }
 
         /* Creates and inflates view and return FlowerViewHolder. */
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FlowerViewHolder {
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
             val view = LayoutInflater.from(parent.context)
                 .inflate(R.layout.activity_item, parent, false)
-            return FlowerViewHolder(view, onClick)
+            return ViewHolder(view, onClick)
         }
 
         /* Gets current flower and uses it to bind view. */
-        override fun onBindViewHolder(holder: FlowerViewHolder, position: Int) {
+        override fun onBindViewHolder(holder: ViewHolder, position: Int) {
             val flower = getItem(position)
             holder.bind(flower)
 
         }
     }
 
-    object FlowerDiffCallback : DiffUtil.ItemCallback<Item>() {
+    object DiffCallback : DiffUtil.ItemCallback<Item>() {
         override fun areItemsTheSame(oldItem: Item, newItem: Item): Boolean {
             return oldItem == newItem
         }

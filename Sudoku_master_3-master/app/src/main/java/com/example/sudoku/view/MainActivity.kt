@@ -1,14 +1,17 @@
 package com.example.sudoku.view
 
+import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.PorterDuff
 import android.media.MediaPlayer
+import android.os.Build
 import android.os.Bundle
 import android.os.SystemClock
 import android.util.Log
 import android.widget.Button
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
@@ -18,10 +21,7 @@ import com.example.sudoku.R
 import com.example.sudoku.game.Cell
 import com.example.sudoku.view.custom.BoardView
 import com.example.sudoku.viewmodel.SudokuViewModel
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.ValueEventListener
+import com.google.firebase.database.*
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import kotlinx.android.synthetic.main.activity_main.*
@@ -42,7 +42,13 @@ class MainActivity : AppCompatActivity(), BoardView.OnTouchListener{
 
     private var isMusicPlaying: Boolean = true         //Khac so voi bien isPlaying cua MediaPlayer, bien nay dung de xac dinh su dung nut mute/unmute va trang thai onPause, onResume
 
-    internal lateinit var Returnbutton: Button
+
+    private val rootRef = FirebaseDatabase.getInstance().reference
+    private lateinit var Ref : Query
+
+    private lateinit var level :String
+    private lateinit var id :String
+
     //Override function on create app
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -144,7 +150,7 @@ class MainActivity : AppCompatActivity(), BoardView.OnTouchListener{
         }
         if (b==6) {
             timer.stop()
-            showGameOverDialog()
+            GameOver()
         }
     }
 
@@ -170,10 +176,9 @@ class MainActivity : AppCompatActivity(), BoardView.OnTouchListener{
     private fun showCongratsDialog(viewModel: SudokuViewModel) {
         val time = (SystemClock.elapsedRealtime() - timer.base) / 1000
         var intent : Intent = getIntent()
-        var level:String = ""
         var tab:String = "                        "
         var Tab:String=""
-        var id : String = intent.getStringExtra("ID")
+        id  = intent.getStringExtra("ID")
         val dialog = AlertDialog.Builder(this, AlertDialog.THEME_HOLO_LIGHT)
         dialog.setIcon(R.drawable.finish_icon)
         dialog.setTitle("Congratulations!")
@@ -182,8 +187,7 @@ class MainActivity : AppCompatActivity(), BoardView.OnTouchListener{
 
         val df: DateFormat = SimpleDateFormat("d MMM yyyy, HH:mm:ss")
         val date: String = df.format(Calendar.getInstance().getTime())
-        val rootRef = FirebaseDatabase.getInstance().reference
-        val hotelRef = rootRef.child("Users").child(id).child("level").limitToLast(1)
+        Ref = rootRef.child("Users").child(id).child("level").limitToLast(1)
         val eventListener: ValueEventListener = object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 for (ds in dataSnapshot.children) {
@@ -203,7 +207,7 @@ class MainActivity : AppCompatActivity(), BoardView.OnTouchListener{
             override fun onCancelled(databaseError: DatabaseError) {
             }
         }
-        hotelRef.addListenerForSingleValueEvent(eventListener)
+        Ref.addListenerForSingleValueEvent(eventListener)
 
         dialog.setPositiveButton("New game") {
             dlg, _ ->
@@ -225,9 +229,8 @@ class MainActivity : AppCompatActivity(), BoardView.OnTouchListener{
     //Xoa value cuối cùng ở nút level khi click exit button
     private fun Delete(){
         var intent : Intent = getIntent()
-        var id:String=intent.getStringExtra("ID")
-        val rootRef = FirebaseDatabase.getInstance().reference
-        val hotelRef = rootRef.child("Users").child(id).child("level").limitToLast(1)
+        id=intent.getStringExtra("ID")
+        Ref = rootRef.child("Users").child(id).child("level").limitToLast(1)
         val eventListener: ValueEventListener = object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 for (ds in dataSnapshot.children) {
@@ -238,14 +241,13 @@ class MainActivity : AppCompatActivity(), BoardView.OnTouchListener{
             override fun onCancelled(databaseError: DatabaseError) {
             }
         }
-        hotelRef.addListenerForSingleValueEvent(eventListener)
+        Ref.addListenerForSingleValueEvent(eventListener)
     }
     //Game Over
-    private fun showGameOverDialog(){
+    private fun GameOver(){
         var intent : Intent = getIntent()
-        var id:String=intent.getStringExtra("ID")
-        val rootRef = FirebaseDatabase.getInstance().reference
-        val hotelRef = rootRef.child("Users").child(id).child("level").limitToLast(1)
+        id=intent.getStringExtra("ID")
+        Ref = rootRef.child("Users").child(id).child("level").limitToLast(1)
         val eventListener: ValueEventListener = object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 for (ds in dataSnapshot.children) {
@@ -257,23 +259,8 @@ class MainActivity : AppCompatActivity(), BoardView.OnTouchListener{
             override fun onCancelled(databaseError: DatabaseError) {
             }
         }
-        hotelRef.addListenerForSingleValueEvent(eventListener)
-        val dialog = AlertDialog.Builder(this, AlertDialog.THEME_HOLO_DARK)
-        dialog.setIcon(R.drawable.exit_game_icon)
-        dialog.setTitle("Notify!")
-        dialog.setMessage("Game over !!!")
-        dialog.setPositiveButton("Yes") {
-                _, _ ->
-            run {
-                timer.base = SystemClock.elapsedRealtime()
-                timer.stop()
-                musicPlayer.stop()
-                musicPlayer.release()
-                finish()
-                exitProcess(0)
-            }
-        }
-        dialog.show()
+        Ref.addListenerForSingleValueEvent(eventListener)
+        dialogGameOver()
     }
     //Function show exit dialog khi nhan nut exit
     private fun showReturnDialog(){
@@ -289,24 +276,29 @@ class MainActivity : AppCompatActivity(), BoardView.OnTouchListener{
                 _, _ ->
             run {
                 Delete()
-                val dialog = AlertDialog.Builder(this, AlertDialog.THEME_HOLO_DARK)
-                dialog.setIcon(R.drawable.exit_game_icon)
-                dialog.setTitle("Notify!")
-                dialog.setMessage("Game over !!!")
-                dialog.setPositiveButton("Yes") {
-                        _, _ ->
-                    run {
-                        timer.base = SystemClock.elapsedRealtime()
-                        timer.stop()
-                        musicPlayer.stop()
-                        musicPlayer.release()
-                        finish()
-                        exitProcess(0)
-                    }
-                }
-                dialog.show()
+                dialogGameOver()
             }
         }
+        dialog.show()
+    }
+    @SuppressLint("NewApi")
+    private fun dialogGameOver(){
+        val dialog = AlertDialog.Builder(this, AlertDialog.THEME_HOLO_DARK)
+        dialog.setIcon(R.drawable.exit_game_icon)
+        dialog.setTitle("Notify!")
+        dialog.setMessage("Game over !!!")
+        dialog.setPositiveButton("Yes") {
+                _, _ ->
+            run {
+                timer.base = SystemClock.elapsedRealtime()
+                timer.stop()
+                musicPlayer.stop()
+                musicPlayer.release()
+                finish()
+                exitProcess(0)
+            }
+        }
+        dialog.setOnDismissListener {dialogGameOver()}
         dialog.show()
     }
     //Function show exit dialog khi ket thuc tro choi va nhan nut exit
@@ -342,13 +334,12 @@ class MainActivity : AppCompatActivity(), BoardView.OnTouchListener{
     //Function show new game dialog khi ket thuc tro choi va nhan nut newgame
     private fun showNewGameDialog(viewModel: SudokuViewModel) {
         var intent : Intent = getIntent()
-        var id:String=intent.getStringExtra("ID")
+        id=intent.getStringExtra("ID")
         val diffNumber: Array<Int> = arrayOf(32, 40, 48)
         val diffName: Array<String> = arrayOf("Easy", "Normal", "Hard")
         var diffChoice = 32
-        var level : String=""
         val dialog = AlertDialog.Builder(this, AlertDialog.THEME_HOLO_LIGHT)
-        dialog.setIcon(R.drawable.new_game_icon)
+        dialog.setIcon(R.drawable.ic_level)
         dialog.setTitle("Choose your game difficulty:")
         dialog.setSingleChoiceItems(diffName, 0) {
             _, i -> diffChoice = diffNumber[i]
@@ -382,13 +373,12 @@ class MainActivity : AppCompatActivity(), BoardView.OnTouchListener{
     //Function show new game dialog khi nhan nut new game
     private fun NewGameDialog(viewModel: SudokuViewModel) {
         var intent : Intent = getIntent()
-        var id:String=intent.getStringExtra("ID")
+        id=intent.getStringExtra("ID")
         val diffNumber: Array<Int> = arrayOf(32, 40, 48)
         val diffName: Array<String> = arrayOf("Easy", "Normal", "Hard")
         var diffChoice = 32
-        var level : String=""
         val dialog = AlertDialog.Builder(this, AlertDialog.THEME_HOLO_LIGHT)
-        dialog.setIcon(R.drawable.new_game_icon)
+        dialog.setIcon(R.drawable.ic_level)
         dialog.setTitle("Choose your game difficulty:")
         dialog.setSingleChoiceItems(diffName, 0) {
                 _, i -> diffChoice = diffNumber[i]

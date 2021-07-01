@@ -4,7 +4,9 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.widget.TextView
 import android.widget.Toast
+import androidx.fragment.app.FragmentTransaction
 import androidx.lifecycle.ViewModelProviders
 import com.example.sudoku.Fragment.Adapter.VpAdapter
 import com.example.sudoku.Fragment.EasyFragment
@@ -13,6 +15,7 @@ import com.example.sudoku.Fragment.NormalFragment
 import com.example.sudoku.R
 import com.example.sudoku.login.Item
 import com.example.sudoku.login.ProfieActivity
+import com.example.sudoku.viewmodel.ShareViewModel
 import com.example.sudoku.viewmodel.SudokuViewModel
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.firebase.database.DataSnapshot
@@ -27,7 +30,8 @@ import java.util.regex.Pattern
 
 class StatisticsActivity : AppCompatActivity() {
     private lateinit var bottomNavigationView: BottomNavigationView
-    private lateinit var viewEasy : EasyFragment
+    private lateinit var viewEasy : ShareViewModel
+    private lateinit var activity : StatisticsActivity
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -67,9 +71,9 @@ class StatisticsActivity : AppCompatActivity() {
             }
             false
         }
-//        viewEasy = ViewModelProviders.of(this).get(EasyFragment::class.java)
-//        viewEasy.Result(id,"Easy")
-        Result(id,"Easy")
+        viewEasy = ViewModelProviders.of(this).get(ShareViewModel::class.java)
+
+        viewEasy.inputString.postValue(id)
     }
     private fun setupTabs(){
 
@@ -80,34 +84,12 @@ class StatisticsActivity : AppCompatActivity() {
         viewPager.adapter = adapter
         tabs.setupWithViewPager(viewPager)
 
-        tabs.getTabAt(0)!!.setIcon(R.drawable.back_icon)
-        tabs.getTabAt(1)!!.setIcon(R.drawable.back_icon)
-        tabs.getTabAt(2)!!.setIcon(R.drawable.clear_icon)
+        tabs.getTabAt(0)!!.setIcon(R.drawable.ic_star_1)
+        tabs.getTabAt(1)!!.setIcon(R.drawable.ic_star_2)
+        tabs.getTabAt(2)!!.setIcon(R.drawable.ic_three_stars)
 
     }
-    private fun Result(id: String,level : String){
-        var ListResult = ArrayList<String>()
-        val database = FirebaseDatabase.getInstance().reference
-        val hotelRef = database.child("Users").child(id).child("result")
-        val eventListener: ValueEventListener = object : ValueEventListener {
-            override fun onDataChange(dataSnapshot: DataSnapshot) {
-                for (ds in dataSnapshot.children) {
 
-                    var result = ds.getValue().toString()
-                    //Lọc ra danh sách theo từng cấp độ chơi vào mảng items
-                    val f = Pattern.compile(level)//chuỗi cần tìm
-                    val m = f.matcher(result)//chuỗi cho trước
-                    while (m.find()) {
-                        ListResult.add(result)
-                    }
-                }
-                Log.d("result",ListResult.toString())
-            }
-            override fun onCancelled(databaseError: DatabaseError) {
-            }
-        }
-        hotelRef.addListenerForSingleValueEvent(eventListener)
-    }
 
 
 }

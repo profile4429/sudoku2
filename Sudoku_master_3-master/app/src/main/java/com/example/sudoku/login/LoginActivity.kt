@@ -1,6 +1,9 @@
 package com.example.sudoku.login
 
+import android.app.PendingIntent.getActivity
 import android.content.Intent
+import android.content.SharedPreferences
+import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.text.method.PasswordTransformationMethod
 import android.util.Log
@@ -40,11 +43,18 @@ class LoginActivity : AppCompatActivity() {
     private lateinit var googleSignInClient :GoogleSignInClient
     val RC_SIGN_IN = 1
     lateinit var auth: FirebaseAuth
-
+    lateinit var mshare : SharedPreferences
+    var isRemembered = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
+
+        //Set email và matkhau
+        mshare = getSharedPreferences("dataLogin", MODE_PRIVATE)
+        editEmail.setText(mshare.getString("taikhoan",""))
+        editPassword.setText(mshare.getString("matkhau",""))
+        isRemembered = mshare.getBoolean("checked",false)
 
         //Check box hiện và ẩn password
         var etPassword = findViewById<View>(R.id.editPassword) as EditText
@@ -75,6 +85,7 @@ class LoginActivity : AppCompatActivity() {
 
         //Login Facebook
         var loginButton = findViewById<View>(R.id.login_button) as LoginButton
+        facebookView.setOnClickListener { loginButton.performClick() }
         loginButton.setOnClickListener {
             callbackManager = CallbackManager.Factory.create()
             loginButton.setPermissions("public_profile", "user_gender", "email")
@@ -96,27 +107,34 @@ class LoginActivity : AppCompatActivity() {
             })
         }
 
-        //Login Google
-        // Configure Google Sign In
-        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestIdToken(getString(R.string.default_web_client_id))
-            .requestEmail()
-            .build()
 
-        googleSignInClient = GoogleSignIn.getClient(this, gso)
-        val account = GoogleSignIn.getLastSignedInAccount(this)
-
-        val signInButton = findViewById<SignInButton>(R.id.sign_in_button)
-        signInButton.setSize(SignInButton.SIZE_STANDARD)
-        signInButton.setOnClickListener { signIn() }
+    }
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if (::callbackManager.isInitialized){
+            callbackManager.onActivityResult(requestCode, resultCode, data)}
+        super.onActivityResult(requestCode, resultCode, data)
 
     }
     private fun SignIn(){
         var email : String = editEmail.text.toString();
         var password : String = editPassword.text.toString();
+        val check : Boolean = checkB.isChecked()
         auth.signInWithEmailAndPassword(email, password)
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
+                    if(checkB.isChecked()){
+                        val edittor : SharedPreferences.Editor = mshare.edit()
+                        edittor.putString("taikhoan",email)
+                        edittor.putString("matkhau",password)
+                        edittor.putBoolean("checked",check)
+                        edittor.apply()
+                    }else{
+                        val edittor : SharedPreferences.Editor = mshare.edit()
+                        edittor.remove("taikhoan")
+                        edittor.remove("matkhau")
+                        edittor.remove("checked")
+                        edittor.apply()
+                    }
                     task.result?.user?.uid?.let {
                         Firebase.database.reference.child("Users").child(it).addListenerForSingleValueEvent(object : ValueEventListener {
                             override fun onDataChange(snapshot: DataSnapshot) {
@@ -137,31 +155,6 @@ class LoginActivity : AppCompatActivity() {
             }
     }
 
-    private fun signIn() {
-        val signInIntent = googleSignInClient.signInIntent
-        startActivityForResult(signInIntent, RC_SIGN_IN)
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        if (::callbackManager.isInitialized){
-            callbackManager.onActivityResult(requestCode, resultCode, data)}
-        super.onActivityResult(requestCode, resultCode, data)
-
-        // Result returned from launching the Intent from GoogleSignInApi.getSignInIntent(...);
-        if (requestCode == RC_SIGN_IN) {
-            val task = GoogleSignIn.getSignedInAccountFromIntent(data)
-            handleSignInResult(task)
-        }
-    }
-
-    private fun handleSignInResult(completeTask: Task<GoogleSignInAccount>) {
-        try {
-            val account = completeTask.getResult(ApiException::class.java)
-            startActivity(Intent(this@LoginActivity, ProfieActivity::class.java))
-        } catch (e: ApiException) {
-            Toast.makeText(this, "Đăng nhập thất bại !", Toast.LENGTH_SHORT).show()
-        }
-    }
 
     companion object {
         var USER_ID: String? = null

@@ -27,7 +27,7 @@
         app:layout_constraintHorizontal_bias="0.505"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView7"
-        app:srcCompat="@drawable/sudoku_3" />
+        app:srcCompat="@drawable/sudoku_4" />
 
     <TextView
         android:id="@+id/textView8"
@@ -35,11 +35,27 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="220dp"
         android:background="@color/com_facebook_device_auth_text"
-        android:text="Chọn một ô rồi nhấn một số để điền vào ô đó"
+        android:text="Khi đáp án bị sai ,số trong ô sẽ hiển thị màu đỏ"
         android:textColor="@color/cardview_light_background"
-        android:textSize="20sp"
+        android:textSize="16sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/imageView3"
+        tools:ignore="MissingConstraints" />
+
+    <TextView
+        android:id="@+id/textView9"
+        android:layout_width="184dp"
+        android:layout_height="58dp"
+        android:layout_marginTop="104dp"
+        android:background="@color/com_facebook_device_auth_text"
+        android:text="Nếu bạn sai quá 5 lần , trò chơi sẽ tự động kết thúc và thông báo bạn đã thua"
+        android:textColor="@color/cardview_light_background"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.987"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/imageView3"
         tools:ignore="MissingConstraints" />

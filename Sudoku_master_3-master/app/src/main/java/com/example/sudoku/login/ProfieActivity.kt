@@ -8,6 +8,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.Button
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.sudoku.R
@@ -20,7 +21,6 @@ import com.facebook.GraphRequest
 import com.facebook.HttpMethod
 import com.facebook.login.LoginManager
 import com.google.android.gms.auth.api.signin.*
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.firebase.database.*
 import com.google.firebase.database.ktx.database
@@ -28,14 +28,15 @@ import com.google.firebase.ktx.Firebase
 import kotlinx.android.synthetic.main.activity_profie.*
 import kotlinx.android.synthetic.main.activity_sign_up2.*
 import org.json.JSONException
-import java.util.ArrayList
+import java.util.*
 import java.util.regex.Pattern
 
 
 class ProfieActivity : AppCompatActivity() {
-    lateinit var mGoogleSignInClient: GoogleSignInClient
+    private lateinit var mGoogleSignInClient: GoogleSignInClient
 
     private lateinit var bottomNavigationView: BottomNavigationView
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -68,30 +69,9 @@ class ProfieActivity : AppCompatActivity() {
         val id: String? = databaseArtists.push().getKey()
         //Facebook
         result()
-        //Google
-//        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-//            .requestEmail()
-//            .build()
-//
-//        // Build a GoogleSignInClient with the options specified by gso.
-//        mGoogleSignInClient = GoogleSignIn.getClient(this, gso)
-        val task: GoogleSignInAccount? = GoogleSignIn.getLastSignedInAccount(this)
-        if (task != null) {
-            var pesonName: String? = task.displayName
-            var personEmail: String? = task.email
-            var personID: String = task.id.toString()
-            val user = User(pesonName.toString(), personEmail.toString(),"",0,"","","","","")
-            databaseArtists.child(personID).setValue(user)
-            tvName.setText(pesonName)
-            tvEmail.setText(personEmail)
-            tvID.setText(personID)
-
-        }
         //Logout
         val btnLogout = findViewById<Button>(R.id.btnSignOut)
         btnLogout.setOnClickListener(View.OnClickListener {
-
-            mGoogleSignInClient.signOut()
             // Logout
             if (AccessToken.getCurrentAccessToken() != null) {
                 GraphRequest(
@@ -136,7 +116,11 @@ class ProfieActivity : AppCompatActivity() {
             id=intent.getStringExtra("id3")}
             else{
                 id=" "
-                Email= intent.getStringExtra("email")
+                if(intent.getStringExtra("email")==null){
+                    Email = tvEmail.text.toString()
+                }else {
+                    Email = intent.getStringExtra("email")
+                }
             }
         }
         else {
@@ -235,7 +219,7 @@ class ProfieActivity : AppCompatActivity() {
         var level :String=""
 
         val dialog = AlertDialog.Builder(this, AlertDialog.THEME_HOLO_LIGHT)
-        dialog.setIcon(R.drawable.new_game_icon)
+        dialog.setIcon(R.drawable.ic_level)
         dialog.setTitle("Choose your game difficulty:")
         dialog.setSingleChoiceItems(diffName, 0) {
                 _, i -> diffChoice = diffNumber[i]
@@ -268,13 +252,42 @@ class ProfieActivity : AppCompatActivity() {
         dialog.show()
 
     }
+    private fun showHowToPlayDialog_3(context: Activity){
+        val dialog = AlertDialog.Builder(this, AlertDialog.THEME_HOLO_LIGHT)
+        val inflater: LayoutInflater = context.getLayoutInflater()
+        val view: View = inflater.inflate(R.layout.layout_sudoku_title_4, null)
+        dialog.setCustomTitle(view)
+        dialog.setMessage("Khi bạn hoàn thành câu đố, trò chơi sẽ thông báo kết quả.")
+        dialog.setNegativeButton("Tôi đã hiểu") {
+                dlg, _ ->  dlg.cancel()
+        }
+        dialog.show()
+    }
+    private fun showHowToPlayDialog_2(context: Activity){
+        val dialog = AlertDialog.Builder(this, AlertDialog.THEME_HOLO_LIGHT)
+        val inflater: LayoutInflater = context.getLayoutInflater()
+        val view: View = inflater.inflate(R.layout.layout_sudoku_title_3, null)
+        dialog.setCustomTitle(view)
+        dialog.setPositiveButton("Next") {
+                _, _ ->
+            run {
+
+                showHowToPlayDialog_3(this@ProfieActivity)
+            }
+        }
+        dialog.show()
+    }
     private fun showHowToPlayDialog_1(context: Activity){
         val dialog = AlertDialog.Builder(this, AlertDialog.THEME_HOLO_LIGHT)
         val inflater: LayoutInflater = context.getLayoutInflater()
         val view: View = inflater.inflate(R.layout.layout_sudoku_title_2, null)
         dialog.setCustomTitle(view)
-        dialog.setNegativeButton("Cancel") {
-                dlg, _ ->  dlg.cancel()
+        dialog.setPositiveButton("Next") {
+                _, _ ->
+            run {
+
+                showHowToPlayDialog_2(this@ProfieActivity)
+            }
         }
         dialog.show()
     }
