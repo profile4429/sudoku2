@@ -11,6 +11,7 @@ import android.os.Bundle
 import android.os.SystemClock
 import android.util.Log
 import android.widget.Button
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -48,7 +49,8 @@ class MainActivity : AppCompatActivity(), BoardView.OnTouchListener{
 
     private lateinit var level :String
     private lateinit var id :String
-
+    private var reset : Int = 0
+    private var temp : Int =5
     //Override function on create app
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -65,18 +67,15 @@ class MainActivity : AppCompatActivity(), BoardView.OnTouchListener{
 
         numberButtons = listOf(firstButton, secondButton, thirdButton, fourthButton, fifthButton, sixthButton, seventhButton, eighthButton, ninthButton)
 
-        var a: Int = 0
         numberButtons.forEachIndexed { index, button ->
             button.setOnClickListener {
                 viewModel.sudokuGame.handleInput(index + 1)
                 if (!viewModel.sudokuGame.ischeck(index+1)) {
-                    a = a + 1
+                    reset++
                 }
-                mistakes.text = a.toString()
+                mistakes.text = reset.toString()
             }
         }
-
-
 
         exitButton.setOnClickListener { showReturnDialog() }
 
@@ -84,7 +83,12 @@ class MainActivity : AppCompatActivity(), BoardView.OnTouchListener{
 
         newButton.setOnClickListener { NewGameDialog(viewModel) }
 
-        hintButton.setOnClickListener { viewModel.sudokuGame.hint() }
+        hintButton.setOnClickListener {
+            viewModel.sudokuGame.hint()
+            temp--
+            tvHint.text=temp.toString()
+            //LimitedHint()
+        }
 
         resetButton.setOnClickListener { viewModel.sudokuGame.reset() }
 
@@ -100,7 +104,14 @@ class MainActivity : AppCompatActivity(), BoardView.OnTouchListener{
         timer.start()
 
     }
-
+    private fun LimitedHint(){
+        var a = Integer.parseInt(tvHint.text.toString())
+        if(a<=0){
+            hintButton.isEnabled=false
+            Toast.makeText(this,"Bạn đã hết số lần trợ giúp",
+                Toast.LENGTH_SHORT).show()
+        }
+    }
     //Override function on pause
     override fun onPause() {
         super.onPause()
@@ -147,10 +158,20 @@ class MainActivity : AppCompatActivity(), BoardView.OnTouchListener{
         if (it) {
             timer.stop()
             showCongratsDialog(viewModel)
+            reset = 0
+            mistakes.text= "0"
+            temp=5
+            tvHint.text = "5"
+            hintButton.isEnabled = true
         }
         if (b==6) {
             timer.stop()
             GameOver()
+            reset = 0
+            mistakes.text = "0"
+            temp=5
+            tvHint.text = "5"
+            hintButton.isEnabled = true
         }
     }
 
@@ -264,7 +285,6 @@ class MainActivity : AppCompatActivity(), BoardView.OnTouchListener{
     }
     //Function show exit dialog khi nhan nut exit
     private fun showReturnDialog(){
-
         val dialog = AlertDialog.Builder(this, AlertDialog.THEME_HOLO_LIGHT)
         dialog.setIcon(R.drawable.back_icon)
         dialog.setTitle("Exit!")
@@ -361,6 +381,11 @@ class MainActivity : AppCompatActivity(), BoardView.OnTouchListener{
                     timer.stop()
                     viewModel.sudokuGame.newGame(diffChoice)
                     timer.start()
+                    reset=0
+                    temp = 5
+                    tvHint.text = "5"
+                    mistakes.text="0"
+                    hintButton.isEnabled = true
                 }
         }
         dialog.setNegativeButton("Cancel") {
@@ -383,7 +408,6 @@ class MainActivity : AppCompatActivity(), BoardView.OnTouchListener{
         dialog.setSingleChoiceItems(diffName, 0) {
                 _, i -> diffChoice = diffNumber[i]
         }
-
         dialog.setPositiveButton("OK") {
                 _, _ ->
             run {
@@ -404,24 +428,24 @@ class MainActivity : AppCompatActivity(), BoardView.OnTouchListener{
                 dialog.setPositiveButton("Yes") {
                         _, _ ->
                     run {
-
                         Firebase.database.reference.child("Users").child(id).child("level").push().setValue(level)
                         timer.base = SystemClock.elapsedRealtime()
                         timer.stop()
                         viewModel.sudokuGame.newGame(diffChoice)
                         timer.start()
+                        reset=0
+                        temp = 5
+                        tvHint.text = "5"
+                        mistakes.text="0"
+                        hintButton.isEnabled= true
                     }
                 }
                 dialog.show()
-
-
             }
         }
         dialog.setNegativeButton("Cancel") {
                 dlg, _ ->  dlg.cancel()
         }
-
         dialog.show()
-
     }
 }

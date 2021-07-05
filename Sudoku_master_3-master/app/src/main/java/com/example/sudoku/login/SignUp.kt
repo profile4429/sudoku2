@@ -35,7 +35,6 @@ class SignUp : AppCompatActivity() {
 
 
     private fun SignUp(){
-
         val email : String = editEmail2.text.toString();
         val password : String = editPassword2.text.toString();
         auth.createUserWithEmailAndPassword(email, password)

@@ -172,11 +172,9 @@ class SudokuGame {
         val test = List(boardSize * boardSize) {
             i -> Cell( i / 9, i % 9, 0, true)
         }
-
         test.forEach {
             it.value = cells[it.row * boardSize + it.col].value
         }
-
         for (row in 0 until boardSize) {
             for (col in 0 until boardSize) {
                if (test[row * boardSize + col].value == 0) {
@@ -188,12 +186,10 @@ class SudokuGame {
                            return true
                        test[row * boardSize + col].value = 0
                    }
-
                    return false
                }
             }
         }
-
         return true
     }
 
@@ -218,7 +214,8 @@ class SudokuGame {
     }
 
     //Function fill block theo duong cheo chinh
-    //Li do: sudoku khong xet theo duong cheo, vi the fill cac block theo duong cheo truoc se la truong hop nhanh nhat va an toan nhat de tim ra solution
+    //Li do: sudoku khong xet theo duong cheo, vi the fill cac block theo duong cheo
+    // truoc se la truong hop nhanh nhat va an toan nhat de tim ra solution
     private fun fillDiagonalBlock(cells: List<Cell>) {
         for (i in 0 until boardSize step blockSize)
             fillBlock(cells, i, i)
@@ -253,7 +250,6 @@ class SudokuGame {
                     return true
             }
         }
-
         for (number in 1..9)
             if (isPossibleNumber(cells, r, c, number)) {
                 cells[r * boardSize + c].value = number
@@ -271,13 +267,10 @@ class SudokuGame {
         val removed = List(boardSize * boardSize) {
             i -> Cell( i / 9,  i % 9, cells[(i / 9) * boardSize + (i % 9) ].value, true)
         }
-
         var numberOfRemoveCell = diff
-
         while (numberOfRemoveCell > 0) {
             val randomRow = Random.nextInt(0, 9)
             val randomCol = Random.nextInt(0, 9)
-
             if (removed[randomRow * boardSize + randomCol].value != 0) {
                 val number = removed[randomRow * boardSize + randomCol].value
                 removed[randomRow * boardSize + randomCol].value = 0
@@ -289,7 +282,6 @@ class SudokuGame {
                 }
             }
         }
-
         return removed
     }
 
@@ -326,14 +318,11 @@ class SudokuGame {
         return true
     }
     //Function to check if the value input is equal to the value in the solution
-
     private fun isRightCheck(row: Int, col: Int, number: Int): Boolean {
         if (number == solution[row * boardSize + col].value)
             return true
         return false
     }
-
-
 
     //Function to check if the game is finished or not
     private fun isFinished(): Boolean {

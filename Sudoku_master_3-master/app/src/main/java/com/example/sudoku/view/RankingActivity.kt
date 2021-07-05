@@ -464,12 +464,7 @@ class RankingActivity : AppCompatActivity() {
 
     }
 
-    private fun adapterOnClick(user: Item) {
-
-    }
-    public fun show(){
-
-    }
+    private fun adapterOnClick(user: Item) {}
     class Adapter(private val onClick: (Item) -> Unit) :
         ListAdapter<Item, Adapter.ViewHolder>(DiffCallback) {
 

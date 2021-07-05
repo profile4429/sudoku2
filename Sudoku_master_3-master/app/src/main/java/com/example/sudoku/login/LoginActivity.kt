@@ -40,8 +40,7 @@ import java.util.*
 
 class LoginActivity : AppCompatActivity() {
     private lateinit var callbackManager: CallbackManager
-    private lateinit var googleSignInClient :GoogleSignInClient
-    val RC_SIGN_IN = 1
+
     lateinit var auth: FirebaseAuth
     lateinit var mshare : SharedPreferences
     var isRemembered = false

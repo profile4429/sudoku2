@@ -35,10 +35,11 @@ class HistoryActivity : AppCompatActivity() {
         }
 
         listview = findViewById(R.id.listView)
+        getDataHistory(id)
+    }
+    private  fun getDataHistory(id : String){
+
         items = ArrayList<String>()
-
-
-
 
         val rootRef = FirebaseDatabase.getInstance().reference
         val hotelRef = rootRef.child("Users").child(id).child("level_Time")
@@ -46,8 +47,8 @@ class HistoryActivity : AppCompatActivity() {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 for (ds in dataSnapshot.children) {
 
-                        items.add(ds.getValue().toString())
-                        mainAdapter!!.notifyDataSetChanged()
+                    items.add(ds.getValue().toString())
+                    mainAdapter!!.notifyDataSetChanged()
 
                 }
             }

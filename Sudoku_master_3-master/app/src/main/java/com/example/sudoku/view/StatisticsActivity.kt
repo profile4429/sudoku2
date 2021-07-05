@@ -31,7 +31,6 @@ import java.util.regex.Pattern
 class StatisticsActivity : AppCompatActivity() {
     private lateinit var bottomNavigationView: BottomNavigationView
     private lateinit var viewEasy : ShareViewModel
-    private lateinit var activity : StatisticsActivity
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

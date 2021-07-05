@@ -33,7 +33,6 @@ import java.util.regex.Pattern
 
 
 class ProfieActivity : AppCompatActivity() {
-    private lateinit var mGoogleSignInClient: GoogleSignInClient
 
     private lateinit var bottomNavigationView: BottomNavigationView
 
@@ -108,7 +107,6 @@ class ProfieActivity : AppCompatActivity() {
     private fun getProfie(){
         var intent : Intent = getIntent()
         var Email: String = ""
-
         var id: String=""
         if(intent.getStringExtra("id2")==null)
         {
@@ -126,7 +124,6 @@ class ProfieActivity : AppCompatActivity() {
         else {
             id= intent.getStringExtra("id2")
         }
-
         val rootRef = FirebaseDatabase.getInstance().reference
         val hotelRef = rootRef.child("Users")
         val eventListener: ValueEventListener = object : ValueEventListener {
@@ -143,7 +140,6 @@ class ProfieActivity : AppCompatActivity() {
                     }
                 }
             }
-
             override fun onCancelled(databaseError: DatabaseError) {}
         }
         hotelRef.addListenerForSingleValueEvent(eventListener)
@@ -157,12 +153,10 @@ class ProfieActivity : AppCompatActivity() {
         val request = GraphRequest.newMeRequest(
             AccessToken.getCurrentAccessToken()
         ) { `object`, response ->
-
             try {
                 var email: String = `object`.getString("email")
                 var name: String = `object`.getString("name")
                 var gender: String = `object`.getString("id")
-                //var imageview: String =`object`.getString("profile_pic")
 
                 tvName.setText(name)
                 tvEmail.setText(email)
@@ -179,32 +173,26 @@ class ProfieActivity : AppCompatActivity() {
                         for (i in 0 until (arr.size)) {
                             val p = Pattern.compile(gender)
                             val m = p.matcher(arr[i])
-                            if(m.find() == true)
-                            {
+                            if(m.find() == true) {
                                 temp++
                             }
                             else{
                                 temp=temp
                             }
-
                         }
                         if(temp == 0) {
                             val user = User(name, email, "", 0,"", "","","","")
                             databaseArtists.child(gender).setValue(user)
                         }
                         else{
-                            Toast.makeText(this@ProfieActivity,"Bạn đang đăng nhập bằng Facebook",
-                                Toast.LENGTH_SHORT).show()
                         }
                     }
-
                     override fun onCancelled(databaseError: DatabaseError) {}
                 }
                 hotelRef.addListenerForSingleValueEvent(eventListener)
             } catch (e: JSONException) {
                 e.printStackTrace()
             }
-
         }
         var bundle = Bundle()
         bundle.putString("fields", "email,name,id");
@@ -296,7 +284,10 @@ class ProfieActivity : AppCompatActivity() {
         val inflater: LayoutInflater = context.getLayoutInflater()
         val view: View = inflater.inflate(R.layout.layout_sudoku_title, null)
         dialog.setCustomTitle(view)
-        dialog.setMessage("Câu đố Sudoku bắt đầu với một bảng kẻ ô, trong đó một số ô đã được điền số, tùy thuộc vào độ khó của trò chơi. Một câu đố được hoàn thành là câu đố trong đó mỗi số từ 1 đến 9 chỉ xuất hiện một lần trên mỗi một trong 9 hàng, cột và khối. Phân tích bảng để tìm ra số có thể phù hợp cho từng ô")
+        dialog.setMessage("Câu đố Sudoku bắt đầu với một bảng kẻ ô, trong đó một số ô đã được điền số, " +
+                "tùy thuộc vào độ khó của trò chơi. " +
+                "Một câu đố được hoàn thành là câu đố trong đó mỗi số từ 1 đến 9 chỉ xuất hiện một lần trên mỗi một trong 9 hàng, cột và khối. " +
+                "Phân tích bảng để tìm ra số có thể phù hợp cho từng ô")
         dialog.setPositiveButton("Next") {
                 _, _ ->
             run {
